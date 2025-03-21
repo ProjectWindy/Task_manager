@@ -49,7 +49,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     super.dispose();
   }
 
-  // Thêm phương thức để tắt bàn phím
+  //  tắt bàn phím
   void _dismissKeyboard() {
     FocusScope.of(context).unfocus();
   }
@@ -59,7 +59,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime.now(), // Chỉ cho phép chọn từ ngày hôm nay
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
     if (picked != null && mounted) {

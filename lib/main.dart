@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import 'screens/task_list_screen.dart';
+import 'screens/Task_details_screen.dart';
 import 'providers/task_provider.dart';
 import 'providers/theme_provider.dart';
 

@@ -17,13 +17,11 @@ class TaskProvider with ChangeNotifier {
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
 
-  // Thời gian thông báo mặc định
-  int notificationHour = 9;
+   int notificationHour = 9;
   int notificationMinute = 0;
   int notificationDaysBefore = 1;
 
-  // Phương thức để cập nhật thời gian thông báo
-  void updateNotificationTime(int hour, int minute, int daysBefore) {
+   void updateNotificationTime(int hour, int minute, int daysBefore) {
     notificationHour = hour;
     notificationMinute = minute;
     notificationDaysBefore = daysBefore;
@@ -67,8 +65,7 @@ class TaskProvider with ChangeNotifier {
       requestAlertPermission: true,
       onDidReceiveLocalNotification:
           (int id, String? title, String? body, String? payload) async {
-        // Handle iOS foreground notification
-      },
+       },
     );
 
     final InitializationSettings initSettings = InitializationSettings(
@@ -84,14 +81,12 @@ class TaskProvider with ChangeNotifier {
           final taskId = int.tryParse(response.payload!);
           if (taskId != null) {
             if (response.actionId == 'mark_completed') {
-              // Tìm task trong danh sách
-              final task = _tasks.firstWhere(
+               final task = _tasks.firstWhere(
                 (task) => task.id == taskId,
                 orElse: () => Task(title: '', dueDate: null),
               );
               if (task.id != null) {
-                // Đánh dấu task là hoàn thành
-                await toggleTaskStatus(task);
+                 await toggleTaskStatus(task);
                 debugPrint('Task marked as completed from notification');
               }
             }
@@ -100,8 +95,7 @@ class TaskProvider with ChangeNotifier {
       },
     );
 
-    // Create notification channel for Android
-    if (Platform.isAndroid) {
+     if (Platform.isAndroid) {
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
         'task_manager_channel',
         'Task Manager',
@@ -162,12 +156,10 @@ class TaskProvider with ChangeNotifier {
     final now = tz.TZDateTime.now(tz.local);
     debugPrint('Current time: ${now.toLocal()}');
 
-    // Lấy ngày đến hạn
-    final dueDate = task.dueDate!;
+     final dueDate = task.dueDate!;
     debugPrint('Task due date (local): ${dueDate.toLocal()}');
 
-    // Chuyển đổi sang TZDateTime với múi giờ địa phương
-    final dueDateTime = tz.TZDateTime(
+     final dueDateTime = tz.TZDateTime(
       tz.local,
       dueDate.year,
       dueDate.month,
@@ -177,12 +169,10 @@ class TaskProvider with ChangeNotifier {
     );
     debugPrint('Due date time (TZ): ${dueDateTime.toLocal()}');
 
-    // Tính số ngày còn lại đến deadline (chỉ so sánh ngày, không so sánh giờ)
-    final daysUntilDue = dueDateTime.difference(now).inDays;
+     final daysUntilDue = dueDateTime.difference(now).inDays;
     debugPrint('Days until due: $daysUntilDue');
 
-    // Chỉ không lên lịch thông báo nếu task đã quá hạn quá 1 ngày
-    if (daysUntilDue < -1) {
+     if (daysUntilDue < -1) {
       debugPrint(
           'Task is overdue by more than 1 day, not scheduling notification');
       return;
@@ -190,10 +180,8 @@ class TaskProvider with ChangeNotifier {
 
     tz.TZDateTime scheduledDate;
 
-    // Logic lựa chọn thời gian thông báo
-    if (daysUntilDue <= 0) {
-      // Nếu đến hạn trong ngày hôm nay hoặc đã quá hạn 1 ngày
-      scheduledDate = tz.TZDateTime(
+     if (daysUntilDue <= 0) {
+       scheduledDate = tz.TZDateTime(
         tz.local,
         now.year,
         now.month,
@@ -202,8 +190,7 @@ class TaskProvider with ChangeNotifier {
         notificationMinute,
       );
 
-      // Nếu thời gian thông báo đã qua trong ngày hôm nay
-      if (scheduledDate.isBefore(now)) {
+       if (scheduledDate.isBefore(now)) {
         scheduledDate = now.add(const Duration(minutes: 1));
         debugPrint(
             'Due today, sending notification in 1 minute: ${scheduledDate.toLocal()}');
@@ -212,8 +199,7 @@ class TaskProvider with ChangeNotifier {
             'Scheduling notification for today at configured time: ${scheduledDate.toLocal()}');
       }
     } else if (daysUntilDue <= notificationDaysBefore) {
-      // Nếu trong khoảng thời gian thông báo
-      scheduledDate = tz.TZDateTime(
+       scheduledDate = tz.TZDateTime(
         tz.local,
         now.year,
         now.month,
@@ -222,8 +208,7 @@ class TaskProvider with ChangeNotifier {
         notificationMinute,
       );
 
-      // Nếu thời gian thông báo đã qua trong ngày hôm nay
-      if (scheduledDate.isBefore(now)) {
+       if (scheduledDate.isBefore(now)) {
         scheduledDate = now.add(const Duration(minutes: 1));
         debugPrint(
             'Today\'s notification time has passed, sending notification in 1 minute: ${scheduledDate.toLocal()}');
@@ -232,8 +217,7 @@ class TaskProvider with ChangeNotifier {
             'Scheduling notification for today at configured time: ${scheduledDate.toLocal()}');
       }
     } else {
-      // Thông báo trước ngày đến hạn theo số ngày đã cấu hình
-      scheduledDate = tz.TZDateTime(
+       scheduledDate = tz.TZDateTime(
         tz.local,
         dueDate.year,
         dueDate.month,
@@ -242,10 +226,8 @@ class TaskProvider with ChangeNotifier {
         notificationMinute,
       );
 
-      // Nếu ngày thông báo đã qua
-      if (scheduledDate.isBefore(now)) {
-        // Lên lịch thông báo vào thời gian đã cấu hình của ngày hôm nay
-        scheduledDate = tz.TZDateTime(
+       if (scheduledDate.isBefore(now)) {
+         scheduledDate = tz.TZDateTime(
           tz.local,
           now.year,
           now.month,
@@ -254,8 +236,7 @@ class TaskProvider with ChangeNotifier {
           notificationMinute,
         );
 
-        // Nếu thời gian thông báo đã qua trong ngày hôm nay
-        if (scheduledDate.isBefore(now)) {
+         if (scheduledDate.isBefore(now)) {
           scheduledDate = now.add(const Duration(minutes: 1));
           debugPrint(
               'Adjusted notification to immediate: ${scheduledDate.toLocal()}');
@@ -270,7 +251,7 @@ class TaskProvider with ChangeNotifier {
     }
 
     debugPrint('Final scheduled notification time: ${scheduledDate.toLocal()}');
-
+    // Set up Thong bao
     final androidDetails = AndroidNotificationDetails(
       'task_manager_channel',
       'Task Manager',
@@ -312,8 +293,7 @@ class TaskProvider with ChangeNotifier {
     );
 
     try {
-      // Cancel any existing notifications for this task
-      await _notifications.cancel(task.id ?? 0);
+       await _notifications.cancel(task.id ?? 0);
       await _notifications.cancel((task.id ?? 0) + 1000); // Cancel 10s reminder
       await _notifications.cancel((task.id ?? 0) + 2000); // Cancel 30s reminder
 
@@ -344,8 +324,7 @@ class TaskProvider with ChangeNotifier {
         payload: task.id.toString(),
       );
 
-      // Schedule 10-second reminder
-      final tenSecondsBefore =
+       final tenSecondsBefore =
           scheduledDate.subtract(const Duration(seconds: 10));
       if (tenSecondsBefore.isAfter(now)) {
         await _notifications.zonedSchedule(
@@ -361,8 +340,7 @@ class TaskProvider with ChangeNotifier {
         );
       }
 
-      // Schedule 30-second reminder
-      final thirtySecondsBefore =
+       final thirtySecondsBefore =
           scheduledDate.subtract(const Duration(seconds: 30));
       if (thirtySecondsBefore.isAfter(now)) {
         await _notifications.zonedSchedule(
@@ -424,8 +402,7 @@ class TaskProvider with ChangeNotifier {
   Future<void> addTask(Task task) async {
     final id = await _databaseHelper.insertTask(task.toMap());
 
-    // Tạo task mới với ID đã được cấp
-    final newTask = Task(
+     final newTask = Task(
       id: id,
       title: task.title,
       description: task.description,
@@ -435,23 +412,19 @@ class TaskProvider with ChangeNotifier {
       notificationDaysBefore: task.notificationDaysBefore,
     );
 
-    // Thêm task mới vào danh sách
-    _tasks.add(newTask);
+     _tasks.add(newTask);
     _filterTasks();
     notifyListeners();
 
-    // Lên lịch thông báo cho task mới
-    await _scheduleTaskNotification(newTask);
+     await _scheduleTaskNotification(newTask);
   }
 
   Future<void> updateTask(Task task) async {
     await _databaseHelper.updateTask(task.toMap());
-    // Hủy thông báo cũ
-    if (task.id != null) {
+     if (task.id != null) {
       await _notifications.cancel(task.id!);
     }
-    // Lên lịch thông báo mới
-    await _scheduleTaskNotification(task);
+     await _scheduleTaskNotification(task);
     await loadTasks();
   }
 
@@ -469,25 +442,21 @@ class TaskProvider with ChangeNotifier {
       await _databaseHelper.toggleTaskStatus(task.id!, newStatus);
 
       if (newStatus == 1) {
-        // Nếu hoàn thành, hủy thông báo
-        await _notifications.cancel(task.id!);
+         await _notifications.cancel(task.id!);
       } else {
-        // Nếu đánh dấu là chưa hoàn thành, lên lịch lại thông báo
-        final updatedTask = task.copyWith(status: newStatus);
+         final updatedTask = task.copyWith(status: newStatus);
         await _scheduleTaskNotification(updatedTask);
       }
     }
     await loadTasks();
   }
 
-  // Phương thức kiểm tra thông báo với nhiều mức độ trễ
-  Future<void> testNotifications() async {
+   Future<void> testNotifications() async {
     final now = DateTime.now();
     debugPrint('Current device time: $now');
     debugPrint('Current timezone: ${tz.local}');
 
-    // Gửi thông báo cho tất cả các task chưa hoàn thành
-    for (var task in _tasks) {
+     for (var task in _tasks) {
       if (task.status == 0 && task.dueDate != null) {
         try {
           String notificationMessage;
